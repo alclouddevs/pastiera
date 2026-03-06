@@ -4,9 +4,10 @@ This APK is a nightly flavor build for testing only.
 
 - It is not an official Pastiera release.
 - It uses the `it.palsoftware.pastiera.nightly` application ID so it installs separately from the official release.
-- It is signed with the standard Android Debug certificate, not the production release key.
-- Do not install it unless you were explicitly asked to test this build.
-- It cannot replace or upgrade the official release build on an existing installation because the signing key is different.
+- It is signed with the shared nightly signing key, not the production release key.
+- You may install it at your own risk if you want early access to in-progress changes.
+- It may be significantly buggier than a stable release because features can land mid-cycle before they receive the same stabilization work as official releases.
+- It can upgrade other Pastiera Nightly builds signed with the same nightly key, but it cannot replace or upgrade the official stable release because the signing key and application ID are different.
 - To return to the official release build, uninstall the debug build first, then install the official APK again.
 
 Artifacts attached to this pre-release:

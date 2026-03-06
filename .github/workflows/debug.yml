@@ -39,6 +39,26 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
+      - name: Decode nightly keystore
+        env:
+          PASTIERA_NIGHTLY_KEYSTORE_B64: ${{ secrets.PASTIERA_NIGHTLY_KEYSTORE_B64 }}
+        run: |
+          mkdir -p release
+          echo "$PASTIERA_NIGHTLY_KEYSTORE_B64" | base64 -d > release/pastiera-nightly.jks
+
+      - name: Create nightly keystore.properties
+        env:
+          PASTIERA_NIGHTLY_KEYSTORE_PASSWORD: ${{ secrets.PASTIERA_NIGHTLY_KEYSTORE_PASSWORD }}
+          PASTIERA_NIGHTLY_KEY_ALIAS: ${{ secrets.PASTIERA_NIGHTLY_KEY_ALIAS }}
+          PASTIERA_NIGHTLY_KEY_PASSWORD: ${{ secrets.PASTIERA_NIGHTLY_KEY_PASSWORD }}
+        run: |
+          cat > release/keystore.properties <<EOF
+          nightlyStoreFile=pastiera-nightly.jks
+          nightlyStorePassword=$PASTIERA_NIGHTLY_KEYSTORE_PASSWORD
+          nightlyKeyAlias=$PASTIERA_NIGHTLY_KEY_ALIAS
+          nightlyKeyPassword=$PASTIERA_NIGHTLY_KEY_PASSWORD
+          EOF
+
       - name: Compute nightly version metadata
         id: nightly_meta
         run: |
