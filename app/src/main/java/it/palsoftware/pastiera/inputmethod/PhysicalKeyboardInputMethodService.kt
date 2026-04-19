@@ -205,6 +205,7 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
     private var lastShiftTapUpTime: Long = 0L
     private var lastAltTapUpTime: Long = 0L
     private var symTogglePendingOnKeyUp: Boolean = false
+    private var spaceLongPressConsumed: Boolean = false
     private var symChordUsedSinceKeyDown: Boolean = false
 
     private val multiTapHandler = Handler(Looper.getMainLooper())
@@ -2112,6 +2113,15 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
             }
         }
         
+        // Long press Space → start Google Voice Typing
+        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+            spaceLongPressConsumed = true
+            // Delete the space that was typed on key-down
+            currentInputConnection?.deleteSurroundingText(1, 0)
+            startSpeechRecognition()
+            return true
+        }
+
         // Intercept long presses BEFORE Android handles them
         if (altSymManager.hasAltMapping(keyCode)) {
             // Consumiamo l'evento per evitare il popup di Android
@@ -2640,7 +2650,13 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
         if (symLayoutController.handleKeyUp(keyCode, shiftPressed)) {
             return true
         }
-        
+
+        // If spacebar long press triggered voice typing, consume the key-up to avoid side effects
+        if (keyCode == KeyEvent.KEYCODE_SPACE && spaceLongPressConsumed) {
+            spaceLongPressConsumed = false
+            return true
+        }
+
         return super.onKeyUp(keyCode, event)
     }
 
