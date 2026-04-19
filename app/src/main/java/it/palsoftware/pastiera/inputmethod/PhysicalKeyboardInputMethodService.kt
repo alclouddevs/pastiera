@@ -206,6 +206,8 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
     private var lastAltTapUpTime: Long = 0L
     private var symTogglePendingOnKeyUp: Boolean = false
     private var spaceLongPressConsumed: Boolean = false
+    private var spaceLongPressRunnable: Runnable? = null
+    private val spaceLongPressHandler = Handler(Looper.getMainLooper())
     private var symChordUsedSinceKeyDown: Boolean = false
 
     private val multiTapHandler = Handler(Looper.getMainLooper())
@@ -2367,18 +2369,29 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
         ) {
             return true
         }
-        // Spacebar held: use the first auto-repeat event (repeatCount == 1) as a long press
-        // because physical keyboards on devices like the Unihertz Titan generate repeated
-        // onKeyDown events when held instead of triggering onKeyLongPress.
+        // Spacebar long press via timer — same pattern as AltSymManager.
+        // On key-down (repeatCount == 0): schedule a 500 ms runnable.
+        // Runnable fires → delete the typed space and launch voice typing.
+        // On key-down with repeatCount > 0: suppress extra spaces while timer is pending/fired.
         if (keyCode == KeyEvent.KEYCODE_SPACE && !altActiveNow && !ctrlActiveNow && !symTogglePendingOnKeyUp) {
             val repeat = event?.repeatCount ?: 0
-            if (repeat == 1) {
-                // Delete the space typed on the initial key-down, then launch voice typing
-                ic?.deleteSurroundingText(1, 0)
-                spaceLongPressConsumed = true
-                startSpeechRecognition()
-                return true
-            } else if (repeat > 1 && spaceLongPressConsumed) {
+            if (repeat == 0) {
+                // Cancel any stale timer from a previous press
+                spaceLongPressRunnable?.let { spaceLongPressHandler.removeCallbacks(it) }
+                spaceLongPressConsumed = false
+                val capturedIc = ic
+                val runnable = Runnable {
+                    spaceLongPressRunnable = null
+                    spaceLongPressConsumed = true
+                    capturedIc?.deleteSurroundingText(1, 0)
+                    startSpeechRecognition()
+                }
+                spaceLongPressRunnable = runnable
+                val threshold = prefs.getLong("long_press_threshold", 500L).coerceIn(50L, 1000L)
+                spaceLongPressHandler.postDelayed(runnable, threshold)
+                // Fall through so handleTextInputPipeline types the space immediately
+            } else {
+                // Suppress auto-repeat spaces while timer is pending or voice typing fired
                 return true
             }
         }
@@ -2671,7 +2684,12 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
             return true
         }
 
-        // If spacebar long press triggered voice typing, consume the key-up to avoid side effects
+        // Cancel the spacebar long-press timer on key-up (quick tap → just a space)
+        spaceLongPressRunnable?.let {
+            spaceLongPressHandler.removeCallbacks(it)
+            spaceLongPressRunnable = null
+        }
+        // If the long-press timer already fired and started voice typing, consume the key-up
         if (keyCode == KeyEvent.KEYCODE_SPACE && spaceLongPressConsumed) {
             spaceLongPressConsumed = false
             return true
