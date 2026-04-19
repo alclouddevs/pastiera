@@ -2367,6 +2367,22 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
         ) {
             return true
         }
+        // Spacebar held: use the first auto-repeat event (repeatCount == 1) as a long press
+        // because physical keyboards on devices like the Unihertz Titan generate repeated
+        // onKeyDown events when held instead of triggering onKeyLongPress.
+        if (keyCode == KeyEvent.KEYCODE_SPACE && !altActiveNow && !ctrlActiveNow && !symTogglePendingOnKeyUp) {
+            val repeat = event?.repeatCount ?: 0
+            if (repeat == 1) {
+                // Delete the space typed on the initial key-down, then launch voice typing
+                ic?.deleteSurroundingText(1, 0)
+                spaceLongPressConsumed = true
+                startSpeechRecognition()
+                return true
+            } else if (repeat > 1 && spaceLongPressConsumed) {
+                return true
+            }
+        }
+
         if (!altActiveNow) {
             if (
                 inputEventRouter.handleTextInputPipeline(
