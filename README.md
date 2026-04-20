@@ -6,6 +6,10 @@ Input method for physical keyboards on Android devices (e.g. Unihertz Titan 2), 
 
 > **Important:** You must uninstall your current version of Pastiera before installing Pastiera Supra, otherwise the installation will not work.
 
+## Download
+
+Download the latest built APK for easy installation: [Pastiera Supra v1.0.0](https://github.com/alclouddevs/pastiera-supra/releases/tag/v1.0.0)
+
 ## What's New in Pastiera Supra
 
 - **Voice Typing via Long-press Spacebar**: Long-press the spacebar to trigger voice typing directly from any text field — no shortcut needed.
