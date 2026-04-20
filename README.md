@@ -13,13 +13,10 @@ Download the latest built APK for easy installation: [Pastiera Supra v1.0.0](htt
 ## What's New in Pastiera Supra
 
 - **Voice Typing via Long-press Spacebar**: Long-press the spacebar to trigger voice typing directly from any text field — no shortcut needed.
+- **Alt+Backspace line deletion behavior**:option to control Alt+Backspace line deletion behavior.  
 - **Sticky Number Row**: The top number row now stays persistently visible for quicker number input.
  Static Variation Bar - option should be enabled for the number row to be visible.
 <img width="1436" height="1440" alt="Screenshot_20260420-034830" src="https://github.com/user-attachments/assets/3f000409-b82d-4897-8289-e65a036b1aae" />
-
-
-- **Alt+Backspace line deletion behavior**:option to control Alt+Backspace line deletion behavior.  
-<img width="1436" height="1440" alt="580528559-566057e6-c349-4c89-84fa-2750f211067c" src="https://github.com/user-attachments/assets/349efcf0-a882-42f0-a100-ea038f7022fd" />
 
 ---
 
