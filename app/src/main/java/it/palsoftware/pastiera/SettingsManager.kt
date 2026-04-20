@@ -58,6 +58,7 @@ object SettingsManager {
     private const val KEY_TRACKPAD_SWIPE_THRESHOLD = "trackpad_swipe_threshold" // Threshold for swipe detection on trackpad
     private const val KEY_SHIFT_BACKSPACE_DELETE = "shift_backspace_delete" // Shift + Backspace performs forward delete
     private const val KEY_ALT_BACKSPACE_DELETE = "alt_backspace_delete" // Alt + Backspace performs forward delete
+    private const val KEY_ALT_BACKSPACE_DELETE_LINE = "alt_backspace_delete_line" // Alt + Backspace deletes to start of line
     private const val KEY_BACKSPACE_AT_START_DELETE = "backspace_at_start_delete" // Backspace at line start performs forward delete
     private const val KEY_PASTIERINA_MODE_OVERRIDE = "pastierina_mode_override" // follow_system | force_minimal | force_full
     private const val KEY_PASTIERINA_MODE_ACTIVE = "pastierina_mode_active" // Current effective state
@@ -136,6 +137,7 @@ object SettingsManager {
     private const val MAX_TRACKPAD_SWIPE_THRESHOLD = 600f
     private const val DEFAULT_SHIFT_BACKSPACE_DELETE = false
     private const val DEFAULT_ALT_BACKSPACE_DELETE = false
+    private const val DEFAULT_ALT_BACKSPACE_DELETE_LINE = true
     private const val DEFAULT_BACKSPACE_AT_START_DELETE = false
     private const val DEFAULT_ACCESSIBILITY_LIVE_ANNOUNCEMENTS_ENABLED = false
     private const val DEFAULT_ACCESSIBILITY_READ_SECOND_ROW_ENABLED = false
@@ -522,6 +524,22 @@ object SettingsManager {
     fun setAltBackspaceDelete(context: Context, enabled: Boolean) {
         getPreferences(context).edit()
             .putBoolean(KEY_ALT_BACKSPACE_DELETE, enabled)
+            .apply()
+    }
+
+    /**
+     * Returns whether Alt+Backspace deletes to the start of the line.
+     */
+    fun getAltBackspaceDeleteLine(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_ALT_BACKSPACE_DELETE_LINE, DEFAULT_ALT_BACKSPACE_DELETE_LINE)
+    }
+
+    /**
+     * Sets whether Alt+Backspace deletes to the start of the line.
+     */
+    fun setAltBackspaceDeleteLine(context: Context, enabled: Boolean) {
+        getPreferences(context).edit()
+            .putBoolean(KEY_ALT_BACKSPACE_DELETE_LINE, enabled)
             .apply()
     }
 

@@ -73,6 +73,10 @@ fun TextInputSettingsScreen(
         mutableStateOf(SettingsManager.getAltBackspaceDelete(context))
     }
 
+    var altBackspaceDeleteLine by remember {
+        mutableStateOf(SettingsManager.getAltBackspaceDeleteLine(context))
+    }
+
     var backspaceAtStartDelete by remember {
         mutableStateOf(SettingsManager.getBackspaceAtStartDelete(context))
     }
@@ -463,6 +467,27 @@ fun TextInputSettingsScreen(
                             onCheckedChange = { enabled ->
                                 altBackspaceDelete = enabled
                                 SettingsManager.setAltBackspaceDelete(context, enabled)
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(R.string.alt_backspace_delete_line_title),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Switch(
+                            checked = altBackspaceDeleteLine,
+                            onCheckedChange = { enabled ->
+                                altBackspaceDeleteLine = enabled
+                                SettingsManager.setAltBackspaceDeleteLine(context, enabled)
                             }
                         )
                     }

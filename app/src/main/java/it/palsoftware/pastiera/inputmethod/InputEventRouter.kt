@@ -404,6 +404,11 @@ class InputEventRouter(
                 return EditableFieldRoutingResult.CallSuper
             }
 
+            if (keyCode == KeyEvent.KEYCODE_DEL && !SettingsManager.getAltBackspaceDeleteLine(context)) {
+                ic?.deleteSurroundingText(1, 0)
+                return EditableFieldRoutingResult.Consume
+            }
+
             if (
                 handleAltModifiedKey(
                     keyCode = keyCode,
