@@ -17,6 +17,10 @@ Download the latest built APK for easy installation: [Pastiera Supra v1.0.0](htt
  Static Variation Bar - option should be enabled for the number row to be visible.
 <img width="1436" height="1440" alt="Screenshot_20260420-034830" src="https://github.com/user-attachments/assets/3f000409-b82d-4897-8289-e65a036b1aae" />
 
+
+- **Alt+Backspace line deletion behavior**:option to control Alt+Backspace line deletion behavior.  
+<img width="1436" height="1440" alt="580528559-566057e6-c349-4c89-84fa-2750f211067c" src="https://github.com/user-attachments/assets/349efcf0-a882-42f0-a100-ea038f7022fd" />
+
 ---
 
 ## Quick Overview
