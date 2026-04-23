@@ -898,6 +898,9 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
             symLayoutController.openSymbolsPage()
             updateStatusBarText()
         }
+        candidatesBarController.onUndoRequested = {
+            currentInputConnection?.performContextMenuAction(android.R.id.undo)
+        }
         candidatesBarController.onMinimalUiToggleRequested = {
             keyboardVisibilityController.toggleUserMinimalUi()
         }

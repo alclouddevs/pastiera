@@ -11,6 +11,7 @@ import it.palsoftware.pastiera.inputmethod.statusbar.button.MinimalUiButtonFacto
 import it.palsoftware.pastiera.inputmethod.statusbar.button.MicrophoneButtonFactory
 import it.palsoftware.pastiera.inputmethod.statusbar.button.SettingsButtonFactory
 import it.palsoftware.pastiera.inputmethod.statusbar.button.SymbolsButtonFactory
+import it.palsoftware.pastiera.inputmethod.statusbar.button.UndoButtonFactory
 import it.palsoftware.pastiera.inputmethod.statusbar.button.StatusBarButtonFactory
 
 /**
@@ -44,6 +45,7 @@ class StatusBarButtonRegistry {
     private val minimalUiFactory = MinimalUiButtonFactory()
     private val settingsFactory = SettingsButtonFactory()
     private val symbolsFactory = SymbolsButtonFactory()
+    private val undoFactory = UndoButtonFactory()
     
     init {
         // Register built-in button factories
@@ -55,6 +57,7 @@ class StatusBarButtonRegistry {
         factories[StatusBarButtonId.MinimalUi] = minimalUiFactory
         factories[StatusBarButtonId.Settings] = settingsFactory
         factories[StatusBarButtonId.Symbols] = symbolsFactory
+        factories[StatusBarButtonId.Undo] = undoFactory
     }
     
     /**

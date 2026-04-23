@@ -71,6 +71,7 @@ class VariationBarView(
     var onClipboardRequested: (() -> Unit)? = null
     var onEmojiPickerRequested: (() -> Unit)? = null
     var onSymbolsPageRequested: (() -> Unit)? = null
+    var onUndoRequested: (() -> Unit)? = null
     var onHamburgerMenuRequested: (() -> Unit)? = null
     var onMinimalUiToggleRequested: (() -> Unit)? = null
     
@@ -499,6 +500,7 @@ class VariationBarView(
             onMinimalUiToggleRequested = onMinimalUiToggleRequested,
             onOpenSettings = { openSettings() },
             onSymbolsPageRequested = onSymbolsPageRequested,
+            onUndoRequested = onUndoRequested,
             onHapticFeedback = { NotificationHelper.triggerHapticFeedback(context) }
         )
         

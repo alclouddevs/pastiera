@@ -76,6 +76,13 @@ class CandidatesBarController(
             candidatesStatusBar.onSymbolsPageRequested = value
         }
 
+    var onUndoRequested: (() -> Unit)? = null
+        set(value) {
+            field = value
+            inputStatusBar.onUndoRequested = value
+            candidatesStatusBar.onUndoRequested = value
+        }
+
     var onMinimalUiToggleRequested: (() -> Unit)? = null
         set(value) {
             field = value

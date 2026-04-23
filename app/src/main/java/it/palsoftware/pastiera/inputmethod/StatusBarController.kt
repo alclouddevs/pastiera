@@ -114,6 +114,12 @@ class StatusBarController(
             variationBarView?.onSymbolsPageRequested = value
         }
 
+    var onUndoRequested: (() -> Unit)? = null
+        set(value) {
+            field = value
+            variationBarView?.onUndoRequested = value
+        }
+
     var onHamburgerMenuRequested: (() -> Unit)? = null
         set(value) {
             field = value

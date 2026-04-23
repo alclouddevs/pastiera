@@ -30,7 +30,7 @@ class HamburgerMenuView(
     private val menuButtonIds = listOf(
         StatusBarButtonId.Symbols,
         StatusBarButtonId.Emoji,
-        StatusBarButtonId.Microphone,
+        StatusBarButtonId.Undo,
         StatusBarButtonId.Clipboard,
         StatusBarButtonId.Language,
         StatusBarButtonId.MinimalUi,
@@ -134,6 +134,9 @@ class HamburgerMenuView(
             },
             onSpeechRecognitionRequested = {
                 callbacks.onSpeechRecognitionRequested?.invoke()
+            },
+            onUndoRequested = {
+                callbacks.onUndoRequested?.invoke()
             },
             onEmojiPickerRequested = {
                 callbacks.onEmojiPickerRequested?.invoke()
