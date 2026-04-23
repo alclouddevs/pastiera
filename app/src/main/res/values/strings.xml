@@ -51,6 +51,8 @@
     <string name="shift_backspace_delete_title">Shift + Backspace</string>
     <string name="alt_backspace_delete_title">Alt + Backspace</string>
     <string name="alt_backspace_delete_line_title">Alt + Backspace deletes to line start</string>
+    <string name="shake_to_undo_title">Shake to undo</string>
+    <string name="shake_to_undo_description">Shake device to undo last text change</string>
     <string name="backspace_at_start_delete_title">Backspace at line start</string>
     <string name="delete_alternatives_hint">Hint: Ctrl + key can be configured in Nav Mode settings</string>
 

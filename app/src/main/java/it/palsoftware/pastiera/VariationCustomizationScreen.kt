@@ -726,7 +726,7 @@ private fun VariationRow(
     val boxSpacing = 8.dp
     val boxSizePx = with(density) { boxSize.toPx() }
     val boxSpacingPx = with(density) { boxSpacing.toPx() }
-    val totalSlots = 7
+    val totalSlots = 9
     
     // Track which index is being dragged and the eventual drop slot for highlighting.
     var draggingIndex by remember { mutableStateOf<Int?>(null) }
@@ -782,12 +782,12 @@ private fun VariationRow(
                 color = labelColor ?: MaterialTheme.colorScheme.onSurface
             )
             
-            // 7 variation boxes
+            // 9 variation boxes
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                repeat(7) { index ->
+                repeat(9) { index ->
                     val character = variations.getOrNull(index) ?: ""
                     val isEmpty = index >= variations.size
                     val isDragging = draggingIndex == index

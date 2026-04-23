@@ -59,6 +59,7 @@ object SettingsManager {
     private const val KEY_SHIFT_BACKSPACE_DELETE = "shift_backspace_delete" // Shift + Backspace performs forward delete
     private const val KEY_ALT_BACKSPACE_DELETE = "alt_backspace_delete" // Alt + Backspace performs forward delete
     private const val KEY_ALT_BACKSPACE_DELETE_LINE = "alt_backspace_delete_line" // Alt + Backspace deletes to start of line
+    private const val KEY_SHAKE_TO_UNDO = "shake_to_undo" // Shake the device to undo
     private const val KEY_BACKSPACE_AT_START_DELETE = "backspace_at_start_delete" // Backspace at line start performs forward delete
     private const val KEY_PASTIERINA_MODE_OVERRIDE = "pastierina_mode_override" // follow_system | force_minimal | force_full
     private const val KEY_PASTIERINA_MODE_ACTIVE = "pastierina_mode_active" // Current effective state
@@ -138,6 +139,7 @@ object SettingsManager {
     private const val DEFAULT_SHIFT_BACKSPACE_DELETE = false
     private const val DEFAULT_ALT_BACKSPACE_DELETE = false
     private const val DEFAULT_ALT_BACKSPACE_DELETE_LINE = true
+    private const val DEFAULT_SHAKE_TO_UNDO = false
     private const val DEFAULT_BACKSPACE_AT_START_DELETE = false
     private const val DEFAULT_ACCESSIBILITY_LIVE_ANNOUNCEMENTS_ENABLED = false
     private const val DEFAULT_ACCESSIBILITY_READ_SECOND_ROW_ENABLED = false
@@ -146,9 +148,9 @@ object SettingsManager {
     private const val MIN_ACCESSIBILITY_SUGGESTIONS_ANNOUNCEMENT_DELAY_MS = 100L
     private const val MAX_ACCESSIBILITY_SUGGESTIONS_ANNOUNCEMENT_DELAY_MS = 2000L
     private val STATIC_VARIATION_BASE_PRESET_DEFAULT = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
-    private val STATIC_VARIATION_BASE_PRESET_ALTERNATIVE = listOf("[", "]", "$", "%", "^", "&", "\\")
-    private val STATIC_VARIATION_SHIFT_PRESET_DEFAULT = listOf("{", "}", "€", "=", "~", ";", "¿")
-    private val STATIC_VARIATION_ALT_PRESET_DEFAULT = listOf("<", ">", "¥", "|", "`", "´", "°")
+    private val STATIC_VARIATION_BASE_PRESET_ALTERNATIVE = listOf("[", "]", "$", "%", "^", "&", "\\", "@", "!")
+    private val STATIC_VARIATION_SHIFT_PRESET_DEFAULT = listOf("{", "}", "€", "=", "~", ";", "¿", "!", "@")
+    private val STATIC_VARIATION_ALT_PRESET_DEFAULT = listOf("<", ">", "¥", "|", "`", "´", "°", "#", "*")
 
     enum class PastierinaModeOverride(val storageValue: String) {
         FOLLOW_SYSTEM("follow_system"),
@@ -540,6 +542,22 @@ object SettingsManager {
     fun setAltBackspaceDeleteLine(context: Context, enabled: Boolean) {
         getPreferences(context).edit()
             .putBoolean(KEY_ALT_BACKSPACE_DELETE_LINE, enabled)
+            .apply()
+    }
+
+    /**
+     * Returns whether shake-to-undo is enabled.
+     */
+    fun isShakeToUndoEnabled(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_SHAKE_TO_UNDO, DEFAULT_SHAKE_TO_UNDO)
+    }
+
+    /**
+     * Sets whether shake-to-undo is enabled.
+     */
+    fun setShakeToUndo(context: Context, enabled: Boolean) {
+        getPreferences(context).edit()
+            .putBoolean(KEY_SHAKE_TO_UNDO, enabled)
             .apply()
     }
 
