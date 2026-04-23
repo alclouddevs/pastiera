@@ -52,6 +52,7 @@ import android.view.inputmethod.InputMethodSubtype
 import it.palsoftware.pastiera.clipboard.ClipboardHistoryManager
 import android.content.pm.PackageManager
 import rikka.shizuku.Shizuku
+import android.hardware.SensorManager
 
 /**
  * Input method service specialized for physical keyboards.
@@ -192,6 +193,9 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
     private var isLanguageSwitchInProgress: Boolean = false
     // Stato per ricordare se il nav mode era attivo prima di entrare in un campo di testo
     private var navModeWasActiveBeforeEditableField: Boolean = false
+
+    // Shake to undo
+    private var shakeDetector: ShakeDetector? = null
 
     // Trackpad gesture detection
     private val trackpadScope = CoroutineScope(Dispatchers.IO)
@@ -1263,6 +1267,9 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
             prefs.unregisterOnSharedPreferenceChangeListener(it)
         }
         
+        shakeDetector?.unregister()
+        shakeDetector = null
+
         // Cleanup SpeechRecognitionManager
         speechRecognitionManager?.destroy()
         speechRecognitionManager = null
@@ -1598,6 +1605,14 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
                 Log.d(TRACKPAD_DEBUG_TAG, "onStartInputView: Gestures enabled and detector already running, skipping")
             }
         }
+
+        if (SettingsManager.isShakeToUndoEnabled(this)) {
+            shakeDetector?.unregister()
+            shakeDetector = ShakeDetector(this) {
+                currentInputConnection?.performContextMenuAction(android.R.id.undo)
+            }
+            shakeDetector?.register()
+        }
     }
     
     override fun onFinishInput() {
@@ -1617,6 +1632,8 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
         super.onFinishInputView(finishingInput)
         isInputViewActive = false
         stopClipboardCleanupTimer()
+        shakeDetector?.unregister()
+        shakeDetector = null
         if (finishingInput) {
             multiTapController.cancelAll()
             resetModifierStates(preserveNavMode = true)
