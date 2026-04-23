@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import kotlin.math.sqrt
 
 class ShakeDetector(
     private val context: Context,
@@ -13,58 +14,37 @@ class ShakeDetector(
 
     private var sensorManager: SensorManager? = null
     private var accelerometer: Sensor? = null
-
     private var lastShakeTime = 0L
-    private var lastX = 0f
-    private var lastY = 0f
-    private var lastZ = 0f
-    private var initialized = false
 
     companion object {
-        private const val SHAKE_THRESHOLD = 800
-        private const val SHAKE_COOLDOWN_MS = 1000L
+        private const val SHAKE_G_FORCE_THRESHOLD = 2.1f
+        private const val SHAKE_COOLDOWN_MS = 1200L
     }
 
     fun register() {
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        if (accelerometer != null) {
-            sensorManager?.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        accelerometer?.let {
+            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
         }
-        initialized = false
     }
 
     fun unregister() {
         sensorManager?.unregisterListener(this)
         sensorManager = null
         accelerometer = null
-        initialized = false
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
         val e = event ?: return
+
         val x = e.values[0]
         val y = e.values[1]
         val z = e.values[2]
 
-        if (!initialized) {
-            lastX = x
-            lastY = y
-            lastZ = z
-            initialized = true
-            return
-        }
+        val gForce = sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH
 
-        val dx = x - lastX
-        val dy = y - lastY
-        val dz = z - lastZ
-        lastX = x
-        lastY = y
-        lastZ = z
-
-        val force = dx * dx + dy * dy + dz * dz
-
-        if (force > SHAKE_THRESHOLD) {
+        if (gForce > SHAKE_G_FORCE_THRESHOLD) {
             val now = System.currentTimeMillis()
             if (now - lastShakeTime > SHAKE_COOLDOWN_MS) {
                 lastShakeTime = now
