@@ -2472,6 +2472,12 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
                     editorInfo = info
                 ) { updateStatusBarText() }
             ) {
+                // Space/Enter consumed here — track the chunk break before returning.
+                if (hasEditableField && event?.repeatCount == 0 &&
+                    (keyCode == KeyEvent.KEYCODE_SPACE || keyCode == KeyEvent.KEYCODE_ENTER)
+                ) {
+                    undoManager.onCharTyped(' ')
+                }
                 return true
             }
         }
@@ -2566,8 +2572,6 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
                     undoManager.onBackspace()
                 isCursorNav ->
                     undoManager.onCursorMoved()
-                keyCode == KeyEvent.KEYCODE_SPACE ->
-                    undoManager.onCharTyped(' ')
                 else -> {
                     val metaState = event?.metaState ?: 0
                     val unicode = event?.getUnicodeChar(metaState) ?: 0
