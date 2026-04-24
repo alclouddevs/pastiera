@@ -4,13 +4,13 @@ import android.util.Log
 import android.view.inputmethod.InputConnection
 
 /**
- * Tracks text committed by the IME and provides a real undo stack.
+ * Tracks text committed by the IME and provides a smart undo stack.
  *
- * Granularity:
- *  - Each typed character is its own undo step (one press = one char deleted).
- *  - Auto-corrected or explicitly committed text (commitText) is one undo step
- *    per commit, since replacing/inserting a whole word should be undone at once.
- *  - Backspace adjusts the stack to stay in sync with the actual field content.
+ * Chunk boundaries (each chunk = one undo step):
+ *  - A pause of [CHUNK_BREAK_MS] or more between keystrokes starts a new chunk.
+ *  - A space or newline flushes the current chunk (including the space).
+ *  - Auto-corrected / explicitly committed text is always its own chunk.
+ *  - Cursor repositioning clears history (position is now unknown).
  *
  * Integration:
  *  - Call [onCharTyped] for every printable character that reaches the text field.
@@ -23,19 +23,40 @@ import android.view.inputmethod.InputConnection
 class InputUndoManager {
 
     private val stack = ArrayDeque<String>()
+    private val pendingChunk = StringBuilder()
+    private var lastKeyTime = 0L
 
     companion object {
         private const val TAG = "UndoStack"
         private const val MAX_STACK_SIZE = 200
+        private const val CHUNK_BREAK_MS = 1000L
     }
 
     /**
      * Called for each printable character typed via the hardware keyboard.
-     * Each character becomes its own undo step immediately.
+     * Flushes the current chunk on space/newline or if more than [CHUNK_BREAK_MS]
+     * has elapsed since the last keystroke.
      */
     fun onCharTyped(char: Char) {
-        Log.d(TAG, "onCharTyped: '$char'  stack.size=${stack.size}")
-        push(char.toString())
+        val now = System.currentTimeMillis()
+        val elapsed = now - lastKeyTime
+
+        if (lastKeyTime != 0L && elapsed >= CHUNK_BREAK_MS) {
+            commitPending()
+            Log.d(TAG, "onCharTyped: time break (${elapsed}ms), flushed chunk")
+        }
+
+        lastKeyTime = now
+
+        when (char) {
+            ' ', '\n', '\r', '\t' -> {
+                pendingChunk.append(char)
+                commitPending()
+            }
+            else -> pendingChunk.append(char)
+        }
+
+        Log.d(TAG, "onCharTyped: '$char'  pending='$pendingChunk'  stack.size=${stack.size}")
     }
 
     /**
@@ -46,42 +67,49 @@ class InputUndoManager {
     fun onTextCommitted(text: String) {
         if (text.isEmpty()) return
         Log.d(TAG, "onTextCommitted: '$text'  stack.size=${stack.size}")
+        commitPending()
         push(text)
+        lastKeyTime = 0L
     }
 
     /**
-     * Called when backspace is pressed. Pops or trims the last stack entry
-     * to stay in sync with what was actually deleted from the field.
+     * Called when backspace is pressed. Trims the pending chunk first;
+     * if empty, trims the last stack entry to stay in sync with the field.
      */
     fun onBackspace() {
-        val last = stack.removeLastOrNull() ?: return
-        if (last.length > 1) {
-            stack.addLast(last.dropLast(1))
+        if (pendingChunk.isNotEmpty()) {
+            pendingChunk.deleteCharAt(pendingChunk.length - 1)
+            lastKeyTime = System.currentTimeMillis()
+        } else {
+            val last = stack.removeLastOrNull() ?: return
+            if (last.length > 1) {
+                stack.addLast(last.dropLast(1))
+            }
         }
     }
 
     /**
      * Called when the cursor is moved (arrow keys, home/end, page up/down).
-     * Clears undo history because we can no longer reliably predict what is
-     * immediately before the cursor after a repositioning.
+     * Clears all history because the cursor position is now unknown.
      */
     fun onCursorMoved() {
         Log.d(TAG, "onCursorMoved: clearing stack")
         stack.clear()
+        pendingChunk.clear()
+        lastKeyTime = 0L
     }
 
-    /**
-     * Returns how many undo steps are available.
-     */
-    fun stackSize(): Int = stack.size
+    /** Returns how many undo steps are available (pending chunk counts as 1). */
+    fun stackSize(): Int = stack.size + (if (pendingChunk.isNotEmpty()) 1 else 0)
 
     /**
-     * Performs one undo step: deletes the last recorded text chunk from the field
-     * using deleteSurroundingText (avoids looping back through onKeyDown).
+     * Performs one undo step: flushes any pending chunk then deletes the last
+     * recorded chunk from the field using deleteSurroundingText.
      *
      * Returns true if undo was applied, false if the stack was empty.
      */
     fun undo(ic: InputConnection): Boolean {
+        commitPending()
         Log.d(TAG, "undo called: stack.size=${stack.size}")
         val text = stack.removeLastOrNull() ?: run {
             Log.d(TAG, "undo: stack empty, nothing to undo")
@@ -92,6 +120,7 @@ class InputUndoManager {
         ic.beginBatchEdit()
         ic.deleteSurroundingText(text.length, 0)
         ic.endBatchEdit()
+        lastKeyTime = 0L
         return true
     }
 
@@ -99,6 +128,16 @@ class InputUndoManager {
     fun clearSession() {
         Log.d(TAG, "clearSession")
         stack.clear()
+        pendingChunk.clear()
+        lastKeyTime = 0L
+    }
+
+    private fun commitPending() {
+        val chunk = pendingChunk.toString()
+        if (chunk.isNotEmpty()) {
+            push(chunk)
+            pendingChunk.clear()
+        }
     }
 
     private fun push(text: String) {
