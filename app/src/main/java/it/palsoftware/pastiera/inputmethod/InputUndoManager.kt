@@ -57,6 +57,7 @@ class InputUndoManager {
             else -> {
                 pendingChunk.append(char)
                 if (pendingChunk.length >= MAX_CHUNK_CHARS) {
+                    Log.d(TAG, "onCharTyped: char-cap reached (${pendingChunk.length}), flushing chunk")
                     commitPending()
                 }
             }
