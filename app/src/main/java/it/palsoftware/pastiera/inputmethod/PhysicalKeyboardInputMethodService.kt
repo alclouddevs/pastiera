@@ -782,7 +782,6 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
         }
         inputEventRouter = InputEventRouter(this, navModeController).apply {
             onCommitText = { markSelectionUpdateSkipAfterCommit() }
-            onUndoableTextCommitted = { text -> undoManager.onTextCommitted(text) }
         }
         textInputController = TextInputController(
             context = this,
@@ -2536,8 +2535,9 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
         }
 
         // Track key presses for the undo stack.
-        // Consume result means the router committed text via commitTextWithTracking,
-        // which already fired onUndoableTextCommitted — no double-tracking needed.
+        // Use getUnicodeChar(metaState) so shift/caps state is applied correctly.
+        // This covers both the Consume path (commitTextWithTracking) and the
+        // CallSuper/Continue path (super.onKeyDown) in a single place.
         if (hasEditableField && event?.repeatCount == 0) {
             val isCursorNav = keyCode == KeyEvent.KEYCODE_DPAD_LEFT ||
                 keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ||
@@ -2553,9 +2553,13 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
                     undoManager.onBackspace()
                 isCursorNav ->
                     undoManager.onCursorMoved()
-                routingDecision != InputEventRouter.EditableFieldRoutingResult.Consume -> {
-                    val char = event?.unicodeChar?.takeIf { it != 0 }?.toChar()
-                    if (char != null) undoManager.onCharTyped(char)
+                else -> {
+                    val metaState = event?.metaState ?: 0
+                    val unicode = event?.getUnicodeChar(metaState) ?: 0
+                    android.util.Log.d("UndoStack", "tracking key=$keyCode unicode=$unicode metaState=$metaState routingDecision=$routingDecision")
+                    if (unicode != 0) {
+                        undoManager.onCharTyped(unicode.toChar())
+                    }
                 }
             }
         }
