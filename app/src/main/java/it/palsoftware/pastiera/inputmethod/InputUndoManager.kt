@@ -1,7 +1,6 @@
 package it.palsoftware.pastiera.inputmethod
 
 import android.util.Log
-import android.view.KeyEvent
 import android.view.inputmethod.InputConnection
 
 /**
@@ -81,9 +80,8 @@ class InputUndoManager {
     fun stackSize(): Int = stack.size + (if (pendingWord.isNotEmpty()) 1 else 0)
 
     /**
-     * Performs one undo step: sends DEL key events for each character in the last
-     * recorded text chunk. Uses sendKeyEvent — the same deletion path as the physical
-     * backspace key — rather than deleteSurroundingText for maximum reliability.
+     * Performs one undo step: deletes the last recorded text chunk from the field
+     * using deleteSurroundingText (does not loop back through onKeyDown unlike sendKeyEvent).
      *
      * Returns true if undo was applied, false if the stack was empty.
      */
@@ -95,13 +93,10 @@ class InputUndoManager {
             return false
         }
         if (text.isEmpty()) return false
-        Log.d(TAG, "undo: sending ${text.length} DEL events for '${text}'")
-        val downEvent = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)
-        val upEvent = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL)
-        repeat(text.length) {
-            ic.sendKeyEvent(downEvent)
-            ic.sendKeyEvent(upEvent)
-        }
+        Log.d(TAG, "undo: deleteSurroundingText(${text.length}) for '${text}'")
+        ic.beginBatchEdit()
+        ic.deleteSurroundingText(text.length, 0)
+        ic.endBatchEdit()
         return true
     }
 
