@@ -11,12 +11,12 @@ class FlavorBuildConfigTest {
     fun releaseChannelBuildConfigMatchesFlavor() {
         when (BuildConfig.RELEASE_CHANNEL) {
             "stable" -> {
-                assertEquals(BuildConfig.IS_FDROID_BUILD, !BuildConfig.ENABLE_GITHUB_UPDATE_CHECKS)
+                assertFalse(BuildConfig.ENABLE_GITHUB_UPDATE_CHECKS)
                 assertFalse(BuildConfig.VERSION_NAME.contains("nightly"))
                 assertEquals("Ver. ${BuildConfig.VERSION_NAME} - Stable", BuildInfo.getBuildInfoString())
             }
             "nightly" -> {
-                assertEquals(BuildConfig.IS_FDROID_BUILD, !BuildConfig.ENABLE_GITHUB_UPDATE_CHECKS)
+                assertFalse(BuildConfig.ENABLE_GITHUB_UPDATE_CHECKS)
                 assertTrue(BuildConfig.VERSION_NAME.contains("nightly"))
                 assertEquals("Ver. ${BuildConfig.VERSION_NAME} - Nightly", BuildInfo.getBuildInfoString())
             }

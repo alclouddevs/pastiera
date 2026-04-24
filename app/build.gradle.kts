@@ -102,7 +102,7 @@ android {
             manifestPlaceholders["imeLabel"] = "Pastiera"
             buildConfigField("String", "RELEASE_CHANNEL", "\"stable\"")
             buildConfigField("boolean", "IS_FDROID_BUILD", if (isFdroidBuild) "true" else "false")
-            buildConfigField("boolean", "ENABLE_GITHUB_UPDATE_CHECKS", if (isFdroidBuild) "false" else "true")
+            buildConfigField("boolean", "ENABLE_GITHUB_UPDATE_CHECKS", "false")
         }
         create("nightly") {
             dimension = "channel"
@@ -115,7 +115,7 @@ android {
             manifestPlaceholders["imeLabel"] = "Pastiera Nightly"
             buildConfigField("String", "RELEASE_CHANNEL", "\"nightly\"")
             buildConfigField("boolean", "IS_FDROID_BUILD", if (isFdroidBuild) "true" else "false")
-            buildConfigField("boolean", "ENABLE_GITHUB_UPDATE_CHECKS", if (isFdroidBuild) "false" else "true")
+            buildConfigField("boolean", "ENABLE_GITHUB_UPDATE_CHECKS", "false")
             val storePath = signingProp("nightlyStoreFile", "PASTIERA_NIGHTLY_KEYSTORE_PATH")
             val storePass = signingProp("nightlyStorePassword", "PASTIERA_NIGHTLY_KEYSTORE_PASSWORD")
             val alias = signingProp("nightlyKeyAlias", "PASTIERA_NIGHTLY_KEY_ALIAS")
