@@ -30,6 +30,7 @@ class InputUndoManager {
         private const val TAG = "UndoStack"
         private const val MAX_STACK_SIZE = 200
         private const val CHUNK_BREAK_MS = 1000L
+        private const val MAX_CHUNK_CHARS = 10
     }
 
     /**
@@ -53,7 +54,12 @@ class InputUndoManager {
                 pendingChunk.append(char)
                 commitPending()
             }
-            else -> pendingChunk.append(char)
+            else -> {
+                pendingChunk.append(char)
+                if (pendingChunk.length >= MAX_CHUNK_CHARS) {
+                    commitPending()
+                }
+            }
         }
 
         Log.d(TAG, "onCharTyped: '$char'  pending='$pendingChunk'  stack.size=${stack.size}")

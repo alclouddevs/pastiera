@@ -2550,6 +2550,8 @@ class PhysicalKeyboardInputMethodService : InputMethodService() {
                     undoManager.onBackspace()
                 isCursorNav ->
                     undoManager.onCursorMoved()
+                keyCode == KeyEvent.KEYCODE_SPACE ->
+                    undoManager.onCharTyped(' ')
                 else -> {
                     val metaState = event?.metaState ?: 0
                     val unicode = event?.getUnicodeChar(metaState) ?: 0
